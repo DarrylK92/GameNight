@@ -14,3 +14,7 @@ body {
   color: #fff;
   background-color: #000;
 }
+
+img {
+  max-width: 200px;
+}
