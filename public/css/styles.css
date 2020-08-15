@@ -18,3 +18,7 @@ body {
 img {
   max-width: 200px;
 }
+
+.menu-button {
+    padding-top: 10px;
+}
