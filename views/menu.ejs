@@ -27,9 +27,11 @@
         </div>
     </form>
 
-    <div class="container menu-button">
-        <a class="btn btn-dark btn-lg" id="closeVoting">Close voting</a>
-    </div>
+    <form class="voting" action="/closeVoting" method="post">
+        <div class="container menu-button">
+            <button class="btn btn-dark btn-lg" type="submit" name="closeVoting">Close voting</button>
+        </div>
+    </form>
 
     <div class="container menu-button">
         <a class="btn btn-dark btn-lg" href="/votingSelection" role="button">Change voting selections</a>

@@ -103,12 +103,17 @@ app.get("/logout", function(req, res) {
 });
 
 app.post("/openVoting", function(req, res) {
-    console.log("OpenVoting");
-    Votingstatus.find({}, function(err, status) {
-        console.log(status);
-    });
-
     Votingstatus.updateOne({}, {isOpen: true}, function(err, status) {
+        if (err) {
+            console.log(err);
+        }
+
+        res.redirect("/menu");
+    });
+});
+
+app.post("/closeVoting", function(req, res) {
+    Votingstatus.updateOne({}, {isOpen: false}, function(err, status) {
         if (err) {
             console.log(err);
         }
