@@ -45,6 +45,9 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+var currentResponse = "";
+
+
 app.get("/", function(req, res) {
     res.render("home");
 });
@@ -62,6 +65,7 @@ app.post("/login", function(req, res) {
     req.login(user, function(err) {
         if (!err) {
             passport.authenticate("local")(req, res, function() {
+                currentResponse = "";
                 res.redirect("/menu");
             });
         } else {
@@ -90,7 +94,7 @@ app.post("/register", function(req, res) {
 app.get("/menu", function(req, res) {
     if (req.isAuthenticated()) {
         User.findOne({username: req.user.username}, function(err, userData) {
-            res.render("menu", {User: req.user.username, isAdmin: userData.isAdmin});
+            res.render("menu", {User: req.user.username, isAdmin: userData.isAdmin, response: currentResponse});
         });
     } else {
         res.redirect("/login");
@@ -108,6 +112,7 @@ app.post("/openVoting", function(req, res) {
             console.log(err);
         }
 
+        currentResponse = "Voting is now open!";
         res.redirect("/menu");
     });
 });
@@ -118,6 +123,7 @@ app.post("/closeVoting", function(req, res) {
             console.log(err);
         }
 
+        currentResponse = "Voting is now closed!";
         res.redirect("/menu");
     });
 });
