@@ -28,7 +28,8 @@ mongoose.set("useCreateIndex", true);
 const userSchema = new mongoose.Schema ({
     username: String,
     name: String,
-    password: String
+    password: String,
+    isAdmin: Boolean
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -69,7 +70,7 @@ app.get("/register", function(req, res) {
 });
 
 app.post("/register", function(req, res) {
-    User.register({username: req.body.username, name: req.body.name}, req.body.password, function(err, user) {
+    User.register({username: req.body.username, name: req.body.name, isAdmin: false}, req.body.password, function(err, user) {
         if (!err) {
             passport.authenticate("local")(req, res, function() {
                 res.redirect("/menu");
