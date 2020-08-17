@@ -81,14 +81,6 @@ app.post("/register", function(req, res) {
     })
 });
 
-app.get("/secrets", function(req, res) {
-    if (req.isAuthenticated()) {
-        res.render("secrets");
-    } else {
-        res.redirect("/login");
-    }
-});
-
 app.get("/menu", function(req, res) {
     if (req.isAuthenticated()) {
         res.render("menu");
