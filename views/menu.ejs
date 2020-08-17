@@ -4,6 +4,10 @@
     <h1>Menu</h1>
 </div>
 
+<div class="container mt-5">
+    <p>Logged in as: <%= User %></p>
+</div>
+
 <div class="container menu-button">
     <button class="btn btn-dark btn-lg" type="button" name="btnVote">Vote</button>
 </div>
@@ -15,5 +19,7 @@
 <div class="container menu-button">
     <a class="btn btn-dark btn-lg" href="/logout" role="button">Log out</a>
 </div>
+
+
 
 <%- include('partials/footer') %>
