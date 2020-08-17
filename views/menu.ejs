@@ -21,9 +21,11 @@
 </div>
 
 <% if (isAdmin) { %>
-    <div class="container menu-button">
-        <a class="btn btn-dark btn-lg" id="openVoting">Open voting</a>
-    </div>
+    <form class="voting" action="/openVoting" method="post">
+        <div class="container menu-button">
+            <button class="btn btn-dark btn-lg" type="submit" name="openVoting">Open voting</button>
+        </div>
+    </form>
 
     <div class="container menu-button">
         <a class="btn btn-dark btn-lg" id="closeVoting">Close voting</a>
@@ -33,7 +35,5 @@
         <a class="btn btn-dark btn-lg" href="/votingSelection" role="button">Change voting selections</a>
     </div>
 <% } %>
-
-<script src="javascript/menu.js"></script>
 
 <%- include('partials/footer') %>

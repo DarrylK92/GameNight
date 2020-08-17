@@ -32,9 +32,14 @@ const userSchema = new mongoose.Schema ({
     isAdmin: Boolean
 });
 
+const votingStatusSchema = new mongoose.Schema ({
+    isOpen: Boolean
+});
+
 userSchema.plugin(passportLocalMongoose);
 
 const User = new mongoose.model("User", userSchema);
+const Votingstatus = new mongoose.model("Votingstatus", votingStatusSchema);
 
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
@@ -95,6 +100,21 @@ app.get("/menu", function(req, res) {
 app.get("/logout", function(req, res) {
     req.logout();
     res.redirect("/");
+});
+
+app.post("/openVoting", function(req, res) {
+    console.log("OpenVoting");
+    Votingstatus.find({}, function(err, status) {
+        console.log(status);
+    });
+
+    Votingstatus.updateOne({}, {isOpen: true}, function(err, status) {
+        if (err) {
+            console.log(err);
+        }
+
+        res.redirect("/menu");
+    });
 });
 
 app.listen(3000, function() {
