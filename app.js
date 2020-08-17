@@ -37,10 +37,16 @@ const votingStatusSchema = new mongoose.Schema ({
     dateChanged: Date
 });
 
+const gameSchema = new mongoose.Schema ({
+    name: String,
+    isEnabled: Boolean
+});
+
 userSchema.plugin(passportLocalMongoose);
 
 const User = new mongoose.model("User", userSchema);
 const Votingstatus = new mongoose.model("Votingstatus", votingStatusSchema);
+const Game = new mongoose.model("Game", gameSchema);
 
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
@@ -126,6 +132,12 @@ app.post("/closeVoting", function(req, res) {
 
         currentResponse = "Voting is now closed!";
         res.redirect("/menu");
+    });
+});
+
+app.get("/votingSelection", function(req, res) {
+    Game.find({}, null, {sort: {name: 1}}, function(err, foundGames) {
+        res.render("changeVoting", {gamesList: foundGames});
     });
 });
 

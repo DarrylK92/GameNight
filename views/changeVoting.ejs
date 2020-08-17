@@ -1,0 +1,16 @@
+<%- include('partials/header') %>
+
+<div class="container mt-5">
+    <h1>Change voting</h1>
+</div>
+
+<% gamesList.forEach(function(game) { %>
+    <form action="/changeEnabled" method="post">
+        <div class="container">
+            <input type="checkbox" name="<%=game.name%>" value="<%=game.name%>" onChange="this.form.submit()">
+            <label for="<%=game.name%>"><%=game.name%></label>
+        </div>
+    </form>
+<% }); %>
+
+<%- include('partials/footer') %>
