@@ -33,7 +33,8 @@ const userSchema = new mongoose.Schema ({
 });
 
 const votingStatusSchema = new mongoose.Schema ({
-    isOpen: Boolean
+    isOpen: Boolean,
+    dateChanged: Date
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -107,7 +108,7 @@ app.get("/logout", function(req, res) {
 });
 
 app.post("/openVoting", function(req, res) {
-    Votingstatus.updateOne({}, {isOpen: true}, function(err, status) {
+    Votingstatus.updateOne({}, {isOpen: true, dateChanged: Date()}, function(err, status) {
         if (err) {
             console.log(err);
         }
@@ -118,7 +119,7 @@ app.post("/openVoting", function(req, res) {
 });
 
 app.post("/closeVoting", function(req, res) {
-    Votingstatus.updateOne({}, {isOpen: false}, function(err, status) {
+    Votingstatus.updateOne({}, {isOpen: false, dateChanged: Date()}, function(err, status) {
         if (err) {
             console.log(err);
         }
