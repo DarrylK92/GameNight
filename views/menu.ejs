@@ -20,6 +20,18 @@
     <a class="btn btn-dark btn-lg" href="/logout" role="button">Log out</a>
 </div>
 
+<% if (isAdmin) { %>
+    <div class="container menu-button">
+        <a class="btn btn-dark btn-lg" id="openVoting">Open voting</a>
+    </div>
 
+    <div class="container menu-button">
+        <a class="btn btn-dark btn-lg" id="closeVoting">Close voting</a>
+    </div>
+
+    <div class="container menu-button">
+        <a class="btn btn-dark btn-lg" href="/votingSelection" role="button">Change voting selections</a>
+    </div>
+<% } %>
 
 <%- include('partials/footer') %>

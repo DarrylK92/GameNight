@@ -84,7 +84,9 @@ app.post("/register", function(req, res) {
 
 app.get("/menu", function(req, res) {
     if (req.isAuthenticated()) {
-        res.render("menu", {User: req.user.username});
+        User.findOne({username: req.user.username}, function(err, userData) {
+            res.render("menu", {User: req.user.username, isAdmin: userData.isAdmin});
+        });
     } else {
         res.redirect("/login");
     }
