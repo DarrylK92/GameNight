@@ -136,9 +136,19 @@ app.post("/closeVoting", function(req, res) {
 });
 
 app.get("/votingSelection", function(req, res) {
-    Game.find({}, null, {sort: {name: 1}}, function(err, foundGames) {
-        res.render("changeVoting", {gamesList: foundGames});
-    });
+    if (req.isAuthenticated()) {
+        User.findOne({username: req.user.username}, function(err, userData) {
+            if (userData.isAdmin) {
+                Game.find({}, null, {sort: {name: 1}}, function(err, foundGames) {
+                    res.render("changeVoting", {gamesList: foundGames});
+                });
+            } else {
+                res.redirect("/menu");
+            }
+        });
+    } else {
+        res.redirect("/login");
+    }
 });
 
 app.post("/changeEnabled", function(req, res) {
