@@ -151,6 +151,16 @@ app.get("/votingSelection", function(req, res) {
     }
 });
 
+app.get("/vote", function(req, res) {
+    if (req.isAuthenticated()) {
+        Game.find({isEnabled: true}, null, {sort: {name: 1}}, function(err, foundGames) {
+            res.render("vote", {gamesList: foundGames});
+        });
+    } else {
+        res.redirect("/login");
+    }
+});
+
 app.post("/changeEnabled", function(req, res) {
     var changedName = "";
     var checked = false;
@@ -167,7 +177,7 @@ app.post("/changeEnabled", function(req, res) {
             console.log(err);
         }
     });
-    res.render("/votingSelection");
+    res.redirect("/votingSelection");
 });
 
 app.listen(3000, function() {
