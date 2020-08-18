@@ -141,6 +141,21 @@ app.get("/votingSelection", function(req, res) {
     });
 });
 
+app.post("/changeEnabled", function(req, res) {
+    var changedName = "";
+    var checked = false;
+    if (req.body.checkbox[0].length > 1) {
+        changedName = req.body.checkbox[0];
+        checked = true;
+    } else {
+        changedName = req.body.checkbox
+        checked = false;
+    }
+
+    Game.updateOne({name: changedName}, {isEnabled: checked});
+    res.redirect("/votingSelection");
+});
+
 app.listen(3000, function() {
     console.log("Server started on port 3000.");
 });
