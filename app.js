@@ -152,7 +152,11 @@ app.post("/changeEnabled", function(req, res) {
         checked = false;
     }
 
-    Game.updateOne({name: changedName}, {isEnabled: checked});
+    Game.updateOne({name: changedName}, {isEnabled: checked}, function(err, foundGames) {
+        if (err) {
+            console.log(err);
+        }
+    });
     res.redirect("/votingSelection");
 });
 
