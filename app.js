@@ -38,7 +38,9 @@ const User = new mongoose.model("User", userSchema);
 
 const votingStatusSchema = new mongoose.Schema ({
     isOpen: Boolean,
-    dateChanged: Date
+    dateChanged: Date,
+    dateOpened: Date,
+    dateClosed: Date
 });
 
 const Votingstatus = new mongoose.model("Votingstatus", votingStatusSchema);
@@ -50,10 +52,6 @@ const gameSchema = new mongoose.Schema ({
 
 const Game = new mongoose.model("Game", gameSchema);
 
-// gameSchema.virtual("id").get(function() {
-//     return this._id;
-// });
-
 const voteSchema = new mongoose.Schema ({
     voteDate: Date,
     gameId: {type: mongoose.Schema.Types.ObjectId, ref: Game},
@@ -61,15 +59,6 @@ const voteSchema = new mongoose.Schema ({
 });
 
 const Vote = new mongoose.model("Vote", voteSchema);
-
-// voteSchema.virtual("gameId").get(function() {
-//     return this.gameId;
-// });
-//
-// voteSchema.virtual("userId").get(function() {
-//     return this.userId;
-// });
-
 
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
@@ -135,7 +124,7 @@ app.get("/logout", function(req, res) {
 });
 
 app.post("/openVoting", function(req, res) {
-    Votingstatus.updateOne({}, {isOpen: true, dateChanged: Date()}, function(err, status) {
+    Votingstatus.updateOne({}, {isOpen: true, dateChanged: Date(), dateOpened: Date()}, function(err, status) {
         if (err) {
             console.log(err);
         }
@@ -146,7 +135,7 @@ app.post("/openVoting", function(req, res) {
 });
 
 app.post("/closeVoting", function(req, res) {
-    Votingstatus.updateOne({}, {isOpen: false, dateChanged: Date()}, function(err, status) {
+    Votingstatus.updateOne({}, {isOpen: false, dateChanged: Date(), dateClosed: Date()}, function(err, status) {
         if (err) {
             console.log(err);
         }
@@ -174,8 +163,18 @@ app.get("/votingSelection", function(req, res) {
 
 app.get("/vote", function(req, res) {
     if (req.isAuthenticated()) {
-        Game.find({isEnabled: true}, null, {sort: {name: 1}}, function(err, foundGames) {
-            res.render("vote", {gamesList: foundGames, response: voteResponse});
+        Votingstatus.findOne({}, function(err, foundStatus) {
+            if (!err) {
+                if (foundStatus.isOpen) {
+                    Game.find({isEnabled: true}, null, {sort: {name: 1}}, function(err, foundGames) {
+                        res.render("vote", {gamesList: foundGames});
+                    });
+                } else {
+                    res.redirect("/menu");
+                }
+            } else {
+                console.log(err);
+            }
         });
     } else {
         res.redirect("/login");
