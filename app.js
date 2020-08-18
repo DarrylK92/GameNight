@@ -157,7 +157,7 @@ app.post("/changeEnabled", function(req, res) {
             console.log(err);
         }
     });
-    res.redirect("/votingSelection");
+    res.render("/votingSelection");
 });
 
 app.listen(3000, function() {
