@@ -163,18 +163,22 @@ app.get("/votingSelection", function(req, res) {
 
 app.get("/vote", function(req, res) {
     if (req.isAuthenticated()) {
-        Votingstatus.findOne({}, function(err, foundStatus) {
-            if (!err) {
-                if (foundStatus.isOpen) {
-                    Game.find({isEnabled: true}, null, {sort: {name: 1}}, function(err, foundGames) {
-                        res.render("vote", {gamesList: foundGames});
-                    });
-                } else {
-                    res.redirect("/menu");
-                }
-            } else {
-                console.log(err);
-            }
+        User.findOne({username: req.user.username}, function(err, foundUser) {
+            Vote.findOne({userId: foundUser._id}, null, {sort: {voteDate: -1}}, function(err, foundVote) {
+                Votingstatus.findOne({}, function(err, foundStatus) {
+                    if (foundVote.voteDate < foundStatus.dateOpened) {
+                        if (foundStatus.isOpen) {
+                            Game.find({isEnabled: true}, null, {sort: {name: 1}}, function(err, foundGames) {
+                                res.render("vote", {gamesList: foundGames});
+                            });
+                        } else {
+                            res.redirect("/menu");
+                        }
+                    } else {
+                        res.redirect("/menu");
+                    }
+                });
+            });
         });
     } else {
         res.redirect("/login");
@@ -201,29 +205,33 @@ app.post("/changeEnabled", function(req, res) {
 });
 
 app.post("/submitVote", function(req, res) {
-    if (req.body.checkbox[0].length > 1) {
-        if (req.body.checkbox.length === 2) {
-            for(i = 0; i < req.body.checkbox.length; i++) {
-                Game.findOne({name: req.body.checkbox[i]}, function(err, foundGame) {
-                    if (!err) {
-                        User.findOne({username: req.user.username}, function(err, foundUser) {
-                            if(!err) {
-                                Vote.insertMany({gameId: foundGame.id, userId: foundUser, voteDate: Date()}, function(err) {
-                                if (err) {
+    if (typeof req.body.checkbox != "undefined") {
+        if (req.body.checkbox[0].length > 1) {
+            if (req.body.checkbox.length === 2) {
+                for(i = 0; i < req.body.checkbox.length; i++) {
+                    Game.findOne({name: req.body.checkbox[i]}, function(err, foundGame) {
+                        if (!err) {
+                            User.findOne({username: req.user.username}, function(err, foundUser) {
+                                if(!err) {
+                                    Vote.insertMany({gameId: foundGame.id, userId: foundUser, voteDate: Date()}, function(err) {
+                                        if (err) {
+                                            console.log(err);
+                                        }
+                                    });
+                                } else {
                                     console.log(err);
                                 }
                             });
-                            } else {
-                                console.log(err);
-                            }
-                        });
-                    } else {
-                        console.log(err);
-                    }
-                });
-            }
+                        } else {
+                            console.log(err);
+                        }
+                    });
+                }
 
-            res.redirect("/menu");
+                res.redirect("/menu");
+            } else {
+                res.redirect("/vote");
+            }
         } else {
             res.redirect("/vote");
         }
