@@ -76,7 +76,6 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 var currentResponse = "";
-var voteResponse = "";
 
 app.get("/", function(req, res) {
     res.render("home");
@@ -95,7 +94,6 @@ app.post("/login", function(req, res) {
     req.login(user, function(err) {
         if (!err) {
             passport.authenticate("local")(req, res, function() {
-                currentResponse = "";
                 res.redirect("/menu");
             });
         } else {
@@ -228,11 +226,9 @@ app.post("/submitVote", function(req, res) {
 
             res.redirect("/menu");
         } else {
-            voteResponse = "You must select two games!";
             res.redirect("/vote");
         }
     } else {
-        voteResponse = "You must select two games!";
         res.redirect("/vote");
     }
 });
