@@ -4,17 +4,15 @@
     <h1>Vote</h1>
 </div>
 
-<% gamesList.forEach(function(game) { %>
-    <form action="/changeEnabled" method="post">
-        <div class="container">
-            <input type="checkbox" name="checkbox" value="<%=game.name%>" onChange="this.form.submit()" <%if (game.isEnabled) {%> checked <%}%>>
-            <input type="hidden" name="checkbox" value="<%=game.name%>">
-            <label for="<%=game.name%>"><%=game.name%></label>
-        </div>
-    </form>
-<% }); %>
+<form action="/submitVote" method="post">
+    <% gamesList.forEach(function(game) { %>
+            <div class="container">
+                <input type="checkbox" name="checkbox" value="<%=game.name%>">
+                <input type="hidden" name="checkbox" value="<%=game.name%>">
+                <label for="<%=game.name%>"><%=game.name%></label>
+            </div>
+    <% }); %>
 
-<form class="vote" action="/submitVote" method="post">
     <div class="container">
         <button class="btn btn-dark btn-lg" type="submit" name="submit">Submit</button>
     </div>
