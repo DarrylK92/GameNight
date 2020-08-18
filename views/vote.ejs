@@ -8,7 +8,6 @@
     <% gamesList.forEach(function(game) { %>
             <div class="container">
                 <input type="checkbox" name="checkbox" value="<%=game.name%>">
-                <input type="hidden" name="checkbox" value="<%=game.name%>">
                 <label for="<%=game.name%>"><%=game.name%></label>
             </div>
     <% }); %>
@@ -17,5 +16,9 @@
         <button class="btn btn-dark btn-lg" type="submit" name="submit">Submit</button>
     </div>
 </form>
+
+<div class="container">
+    <%= response %>
+</div>
 
 <%- include('partials/footer') %>

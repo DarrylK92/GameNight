@@ -32,28 +32,51 @@ const userSchema = new mongoose.Schema ({
     isAdmin: Boolean
 });
 
+userSchema.plugin(passportLocalMongoose);
+
+const User = new mongoose.model("User", userSchema);
+
 const votingStatusSchema = new mongoose.Schema ({
     isOpen: Boolean,
     dateChanged: Date
 });
+
+const Votingstatus = new mongoose.model("Votingstatus", votingStatusSchema);
 
 const gameSchema = new mongoose.Schema ({
     name: String,
     isEnabled: Boolean
 });
 
-userSchema.plugin(passportLocalMongoose);
-
-const User = new mongoose.model("User", userSchema);
-const Votingstatus = new mongoose.model("Votingstatus", votingStatusSchema);
 const Game = new mongoose.model("Game", gameSchema);
+
+// gameSchema.virtual("id").get(function() {
+//     return this._id;
+// });
+
+const voteSchema = new mongoose.Schema ({
+    voteDate: Date,
+    gameId: {type: mongoose.Schema.Types.ObjectId, ref: Game},
+    userId: {type: mongoose.Schema.Types.ObjectId, ref: User}
+});
+
+const Vote = new mongoose.model("Vote", voteSchema);
+
+// voteSchema.virtual("gameId").get(function() {
+//     return this.gameId;
+// });
+//
+// voteSchema.virtual("userId").get(function() {
+//     return this.userId;
+// });
+
 
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 var currentResponse = "";
-
+var voteResponse = "";
 
 app.get("/", function(req, res) {
     res.render("home");
@@ -154,7 +177,7 @@ app.get("/votingSelection", function(req, res) {
 app.get("/vote", function(req, res) {
     if (req.isAuthenticated()) {
         Game.find({isEnabled: true}, null, {sort: {name: 1}}, function(err, foundGames) {
-            res.render("vote", {gamesList: foundGames});
+            res.render("vote", {gamesList: foundGames, response: voteResponse});
         });
     } else {
         res.redirect("/login");
@@ -178,6 +201,40 @@ app.post("/changeEnabled", function(req, res) {
         }
     });
     res.redirect("/votingSelection");
+});
+
+app.post("/submitVote", function(req, res) {
+    if (req.body.checkbox[0].length > 1) {
+        if (req.body.checkbox.length === 2) {
+            for(i = 0; i < req.body.checkbox.length; i++) {
+                Game.findOne({name: req.body.checkbox[i]}, function(err, foundGame) {
+                    if (!err) {
+                        User.findOne({username: req.user.username}, function(err, foundUser) {
+                            if(!err) {
+                                Vote.insertMany({gameId: foundGame.id, userId: foundUser, voteDate: Date()}, function(err) {
+                                if (err) {
+                                    console.log(err);
+                                }
+                            });
+                            } else {
+                                console.log(err);
+                            }
+                        });
+                    } else {
+                        console.log(err);
+                    }
+                });
+            }
+
+            res.redirect("/menu");
+        } else {
+            voteResponse = "You must select two games!";
+            res.redirect("/vote");
+        }
+    } else {
+        voteResponse = "You must select two games!";
+        res.redirect("/vote");
+    }
 });
 
 app.listen(3000, function() {
