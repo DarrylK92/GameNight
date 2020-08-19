@@ -46,6 +46,7 @@ const votingStatusSchema = new mongoose.Schema ({
 const Votingstatus = new mongoose.model("Votingstatus", votingStatusSchema);
 
 const gameSchema = new mongoose.Schema ({
+    _id: {type: mongoose.Schema.Types.ObjectId},
     name: String,
     isEnabled: Boolean
 });
@@ -69,6 +70,7 @@ const reasonSchema = new mongoose.Schema ({
 const Reason = new mongoose.model("Reason", reasonSchema);
 
 const resultSchema = new mongoose.Schema ({
+    _id: {type: mongoose.Schema.Types.ObjectId},
     winnerGameId: {type: mongoose.Schema.Types.ObjectId, ref: Game},
     reasonId: {type: mongoose.Schema.Types.ObjectId, ref: Reason},
     dateResult: Date
@@ -289,7 +291,17 @@ app.get("/results", function(req, res) {
     if (req.isAuthenticated()) {
         Votingstatus.findOne({}, function(err, foundStatus) {
             if (!foundStatus.isOpen) {
-                res.render("results");
+                Result.findOne({}, null, {sort: {dateResult: -1}}, function(err, foundResult) {
+                    Game.findOne({ _id: foundResult.winnerGameId }, function(err, foundGame) {
+                        const gameName = foundGame.name;
+
+                        Reason.findOne({ _id: foundResult.reasonId }, function(err, foundReason) {
+                            const reasonText = foundReason.text;
+
+                            res.render("results", {winner: gameName, reason: reasonText});
+                        });
+                    });
+                });
             } else {
                 res.redirect("/menu");
             }
