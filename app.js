@@ -185,6 +185,20 @@ app.get("/vote", function(req, res) {
     }
 });
 
+app.get("/results", function(req, res) {
+    if (req.isAuthenticated()) {
+        Votingstatus.findOne({}, function(err, foundStatus) {
+            if (!foundStatus.isOpen) {
+                res.render("results");
+            } else {
+                res.redirect("/menu");
+            }
+        });
+    } else {
+        res.redirect("/login");
+    }
+});
+
 app.post("/changeEnabled", function(req, res) {
     var changedName = "";
     var checked = false;
