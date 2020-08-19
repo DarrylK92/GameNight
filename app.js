@@ -124,24 +124,36 @@ app.get("/logout", function(req, res) {
 });
 
 app.post("/openVoting", function(req, res) {
-    Votingstatus.updateOne({}, {isOpen: true, dateChanged: Date(), dateOpened: Date()}, function(err, status) {
-        if (err) {
-            console.log(err);
-        }
+    Votingstatus.findOne({}, function(err, foundStatus) {
+        if (!foundStatus.isOpen) {
+            Votingstatus.updateOne({}, {isOpen: true, dateChanged: Date(), dateOpened: Date()}, function(err, status) {
+                if (err) {
+                    console.log(err);
+                }
 
-        currentResponse = "Voting is now open!";
-        res.redirect("/menu");
+                currentResponse = "Voting is now open!";
+                res.redirect("/menu");
+            });
+        } else {
+            res.redirect("/menu");
+        }
     });
 });
 
 app.post("/closeVoting", function(req, res) {
-    Votingstatus.updateOne({}, {isOpen: false, dateChanged: Date(), dateClosed: Date()}, function(err, status) {
-        if (err) {
-            console.log(err);
-        }
+    Votingstatus.findOne({}, function(err, foundStatus) {
+        if (foundStatus.isOpen) {
+            Votingstatus.updateOne({}, {isOpen: false, dateChanged: Date(), dateClosed: Date()}, function(err, status) {
+                if (err) {
+                    console.log(err);
+                }
 
-        currentResponse = "Voting is now closed!";
-        res.redirect("/menu");
+                currentResponse = "Voting is now closed!";
+                res.redirect("/menu");
+            });
+        } else {
+            res.redirect("/menu");
+        }
     });
 });
 
