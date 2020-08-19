@@ -22,7 +22,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb://localhost:27017/userDB");
+mongoose.connect("mongodb+srv://" + process.env.ATLASUSER + ":" + process.env.ATLASPASS + "@cluster0.jktcn.mongodb.net/userDB?retryWrites=true&w=majority");
 mongoose.set("useCreateIndex", true);
 
 const userSchema = new mongoose.Schema ({
