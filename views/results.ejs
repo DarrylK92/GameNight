@@ -9,4 +9,11 @@
     <h3>Reason: <%=reason%></h3>
 </div>
 
+<div class="container mt-5">
+    <h4>Votes:</h4>
+    <% votesArray.forEach(function(vote) { %>
+        <h5><%=vote._id%> - <%=vote.count%></h5>
+    <% }); %>
+</div>
+
 <%- include('partials/footer') %>

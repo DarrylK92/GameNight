@@ -298,7 +298,19 @@ app.get("/results", function(req, res) {
                         Reason.findOne({ _id: foundResult.reasonId }, function(err, foundReason) {
                             const reasonText = foundReason.text;
 
-                            res.render("results", {winner: gameName, reason: reasonText});
+                            Votingstatus.findOne({}, function(err, foundStatus) {
+                                const dateOpened = foundStatus.dateOpened;
+                                const dateClosed = foundStatus.dateClosed;
+
+                                Vote.aggregate().
+                                    lookup({ from: "games", localField: "gameId", foreignField: "_id", as: "gameName"}).
+                                    match({voteDate: { $gte: dateOpened, $lte: dateClosed }}).
+                                    group({_id: "$gameName.name", count: { $sum: 1 }}).
+                                    sort({count: -1}).
+                                    exec(function(err, resultVotes) {
+                                        res.render("results", {winner: gameName, reason: reasonText, votesArray: resultVotes});
+                                    });
+                            });
                         });
                     });
                 });
