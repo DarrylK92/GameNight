@@ -60,6 +60,22 @@ const voteSchema = new mongoose.Schema ({
 
 const Vote = new mongoose.model("Vote", voteSchema);
 
+const reasonSchema = new mongoose.Schema ({
+    _id: {type: mongoose.Schema.Types.ObjectId},
+    key: String,
+    text: String
+});
+
+const Reason = new mongoose.model("Reason", reasonSchema);
+
+const resultSchema = new mongoose.Schema ({
+    winnerGameId: {type: mongoose.Schema.Types.ObjectId, ref: Game},
+    reasonId: {type: mongoose.Schema.Types.ObjectId, ref: Reason},
+    dateResult: Date
+});
+
+const Result = new mongoose.model("Result", resultSchema);
+
 passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
@@ -148,6 +164,7 @@ app.post("/closeVoting", function(req, res) {
                     console.log(err);
                 }
 
+                calculateResults();
                 currentResponse = "Voting is now closed!";
                 res.redirect("/menu");
             });
@@ -156,6 +173,71 @@ app.post("/closeVoting", function(req, res) {
         }
     });
 });
+
+function calculateResults() {
+    Votingstatus.findOne({}, function(err, foundStatus) {
+        const dateOpened = foundStatus.dateOpened;
+        const dateClosed = foundStatus.dateClosed;
+
+        Vote.aggregate().
+            match({voteDate: { $gte: dateOpened, $lte: dateClosed }}).
+            group({_id: "$gameId", count: { $sum: 1 }}).
+            sort({count: -1}).
+            exec(function(err, res) {
+                var gameIds = [];
+                var counts = [];
+
+                for(i = 0; i < res.length; i++) {
+                    gameIds.push(res[i]._id);
+                    counts.push(res[i].count);
+                }
+
+                //Check if won by most votes
+                var wonByMostVotes = true;
+                const highestCount = counts[0];
+                for(i = 1; i < counts.length; i++) {
+                    if (counts[i] === highestCount) {
+                        wonByMostVotes = false;
+                    }
+                }
+
+                if (wonByMostVotes) {
+                    const gameId = gameIds[0];
+
+                    Reason.findOne({key: "MostVotes"}, function(err, reasonData) {
+                        const reasonId = reasonData._id;
+
+                        Result.insertMany({winnerGameId: gameId, reasonId: reasonId, dateResult: Date()}, function(err) {
+                            if (err) {
+                                console.log(err);
+                            }
+                        });
+                    });
+                } else {
+                    var tiedIndexes = [0];
+
+                    for(i = 1; i < counts.length; i++) {
+                        if (counts[i] === highestCount) {
+                            tiedIndexes.push(i);
+                        }
+                    }
+
+                    const randomVal = Math.floor(Math.random() * tiedIndexes.length);
+                    const gameId = gameIds[randomVal];
+
+                    Reason.findOne({key: "Random"}, function(err, reasonData) {
+                        const reasonId = reasonData._id;
+
+                        Result.insertMany({winnerGameId: gameId, reasonId: reasonId, dateResult: Date()}, function(err) {
+                            if (err) {
+                                console.log(err);
+                            }
+                        });
+                    });
+                }
+            });
+    });
+}
 
 app.get("/votingSelection", function(req, res) {
     if (req.isAuthenticated()) {
@@ -178,7 +260,13 @@ app.get("/vote", function(req, res) {
         User.findOne({username: req.user.username}, function(err, foundUser) {
             Vote.findOne({userId: foundUser._id}, null, {sort: {voteDate: -1}}, function(err, foundVote) {
                 Votingstatus.findOne({}, function(err, foundStatus) {
-                    if (foundVote.voteDate < foundStatus.dateOpened) {
+                    var voteDate = Date.parse('01 Jan 1970 00:00:00 GMT');
+
+                    if (foundVote != null) {
+                        voteDate = foundVote.voteDate;
+                    }
+
+                    if (voteDate < foundStatus.dateOpened) {
                         if (foundStatus.isOpen) {
                             Game.find({isEnabled: true}, null, {sort: {name: 1}}, function(err, foundGames) {
                                 res.render("vote", {gamesList: foundGames});
